@@ -1,7 +1,10 @@
 
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -42,14 +45,15 @@ public class JFrameAplikasiPerhitunganHari extends javax.swing.JFrame {
         jSpinner1 = new javax.swing.JSpinner();
         jPanel3 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jCalendar2 = new com.toedter.calendar.JCalendar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(550, 450));
         setResizable(false);
 
-        java.awt.GridBagLayout jPanel1Layout = new java.awt.GridBagLayout();
-        jPanel1Layout.columnWidths = new int[] {0, 5, 0, 5, 0};
-        jPanel1Layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
-        jPanel1.setLayout(jPanel1Layout);
+        jPanel1.setPreferredSize(new java.awt.Dimension(397, 200));
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         jCalendar1.setDate(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         jCalendar1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
@@ -128,24 +132,29 @@ public class JFrameAplikasiPerhitunganHari extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 8, 0, 8);
         jPanel1.add(jPanel2, gridBagConstraints);
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+        getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Calendar hitung selisih", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
+        jPanel4.setLayout(new java.awt.BorderLayout());
+        jPanel4.add(jCalendar2, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(jPanel4, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        var calendar = jCalendar1.getCalendar();
-
         var sb = new StringBuilder();
-        var hariPadaBulan = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        var bulan = (String) jComboBox1.getSelectedItem();
+        var bulan = ((String) jComboBox1.getSelectedItem()).toLowerCase();
         var tahun = (int) jSpinner1.getValue();
-        sb.append("jumlah hari pada bulan ")
-                .append(bulan.toLowerCase())
+        var calendar = jCalendar1.getCalendar();
+        var hariPadaBulan = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        sb.append("jumlah hari bulan ")
+                .append(bulan)
                 .append(" ")
                 .append(tahun)
                 .append(" : ")
@@ -156,7 +165,39 @@ public class JFrameAplikasiPerhitunganHari extends javax.swing.JFrame {
         sb.append("tahun ")
                 .append(tahun)
                 .append(kabisat ? " adalah" : " bukan")
-                .append(" tahun kabisat");
+                .append(" tahun kabisat\n\n");
+
+        var calendar2 = (Calendar) calendar.clone();
+        var namaHari = new String[]{"minggu", "senin", "selasa", "rabu", "kamis", "jum'at", "sabtu"};
+        calendar2.set(Calendar.DAY_OF_MONTH, 1);
+        var hariPertama = namaHari[calendar2.get(Calendar.DAY_OF_WEEK) - 1];
+        sb.append("hari pertama bulan ")
+                .append(bulan)
+                .append(" : ")
+                .append(hariPertama)
+                .append("\n");
+
+        calendar2.set(Calendar.DAY_OF_MONTH, hariPadaBulan);
+        var hariTerakhir = namaHari[calendar2.get(Calendar.DAY_OF_WEEK) - 1];
+        sb.append("hari terakhir bulan ")
+                .append(bulan)
+                .append(" : ")
+                .append(hariTerakhir)
+                .append("\n\n");
+
+        var date1 = calendar.getTime();
+        var date2 = jCalendar2.getCalendar().getTime();
+        var selisih = Math.abs(ChronoUnit.DAYS.between(
+                date1.toInstant(), date2.toInstant()
+        ));
+        var dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        sb.append("selisih antara ")
+                .append(dateFormat.format(date1))
+                .append(" dan\n");
+        sb.append(dateFormat.format(date2))
+                .append(" adalah ")
+                .append(selisih)
+                .append(" hari");
 
         new Utilities(this).showInformationDialog(sb.toString());
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -194,7 +235,7 @@ public class JFrameAplikasiPerhitunganHari extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows Classic".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -221,12 +262,14 @@ public class JFrameAplikasiPerhitunganHari extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private com.toedter.calendar.JCalendar jCalendar1;
+    private com.toedter.calendar.JCalendar jCalendar2;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JSpinner jSpinner1;
     // End of variables declaration//GEN-END:variables
 }
